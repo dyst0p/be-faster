@@ -2,63 +2,63 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     public int score = 0;
 
     public GameObject player;
+    public Player playerScript;
     public GameObject targetPrefab;
     public GameObject bombPrefab;
     private int bombSpawnRate = 5;
 
     public GameObject exposionEffects;
 
-    public GameObject restartScreen;
-    public Text scoreTextGameOver;
-    public ScoreText scoreText;
-    public int scoreMultiplicityToShow;
-
-    private bool isGameOver = true;
+    [SerializeField] MainUIScript uiScript;
+    [SerializeField] int scoreMultiplicityToShow;
 
     private void Start()
     {
-        restartScreen.SetActive(false);
+        playerScript = player.GetComponent<Player>();
     }
 
     public void StartGame()
     {
         DestroyAllItems();
-        isGameOver = false;
-        player.GetComponent<Player>().fuel = player.GetComponent<Player>().maxFuel;
+        playerScript.fuel = playerScript.maxFuel;
         player.SetActive(true);
         score = 0;
-        scoreText.SetToZero();
         SpawnTarget();
+
+        uiScript.ActivatePlaymodeUI();
+    }
+
+    public void ExitToMenu()
+    {
+        DestroyAllItems();
+        uiScript.ActivateMenuUI();
     }
 
     public void GameOver()
     {
-        isGameOver = true;
-        player.GetComponent<Player>().fuel = 0;
-        player.GetComponent<Player>().speed = Vector3.zero;
-        player.GetComponent<Player>().transform.rotation = Quaternion.identity;
+        playerScript.fuel = 0;
+        playerScript.speed = Vector3.zero;
+        playerScript.transform.rotation = Quaternion.identity;
         player.SetActive(false);
         Instantiate(exposionEffects, player.transform.position, exposionEffects.transform.rotation);
 
-        restartScreen.SetActive(true);
-        scoreTextGameOver.text = $"Score: {score}";
+        uiScript.ActivateRestartScreen();
     }
 
     public void TargetCollected(GameObject target)
     {
         score++;
-        player.GetComponent<Player>().fuel++;
+        playerScript.fuel++;
         Destroy(target);
         SpawnTarget();
         if (score % scoreMultiplicityToShow == 0)
-            scoreText.ShowScore(score);
+            uiScript.ShowScore();
     }
 
     public void BombCollide()

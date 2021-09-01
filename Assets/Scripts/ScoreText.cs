@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ScoreText : MonoBehaviour
 {
-    public float flashDuration;
+    [SerializeField] float flashDuration;
     
     private Text scoreText;
 
