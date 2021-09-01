@@ -32,6 +32,12 @@ public class MainUIScript : MonoBehaviour
         scoreText.SetToZero();
     }
 
+    public void ActivateMenuUI()
+    {
+        startScreen.SetActive(true);
+        restartScreen.SetActive(false);
+    }
+
     public void ActivateRestartScreen()
     {
         restartScreen.SetActive(true);

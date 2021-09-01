@@ -34,6 +34,12 @@ public class GameManager : MonoBehaviour
         uiScript.ActivatePlaymodeUI();
     }
 
+    public void ExitToMenu()
+    {
+        DestroyAllItems();
+        uiScript.ActivateMenuUI();
+    }
+
     public void GameOver()
     {
         playerScript.fuel = 0;
