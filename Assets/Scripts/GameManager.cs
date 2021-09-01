@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         DestroyAllItems();
-        playerScript.fuel = playerScript.maxFuel;
+        playerScript.FullTank();
         player.SetActive(true);
         score = 0;
         SpawnTarget();
@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        playerScript.fuel = 0;
+        //playerScript.fuel = 0;
         playerScript.speed = Vector3.zero;
         playerScript.transform.rotation = Quaternion.identity;
         player.SetActive(false);
@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
     public void TargetCollected(GameObject target)
     {
         score++;
-        playerScript.fuel++;
+        playerScript.RefillFuel();
         Destroy(target);
         SpawnTarget();
         if (score % scoreMultiplicityToShow == 0)
@@ -68,12 +68,7 @@ public class GameManager : MonoBehaviour
 
     private void SpawnTarget()
     {
-        Vector2 spawnPos = RandomPosition();
-        while (Physics2D.CircleCast(spawnPos, 1.5f, Vector2.zero, 0.0f).collider != null)
-        {
-            spawnPos = RandomPosition();
-        }
-        Instantiate(targetPrefab, spawnPos, targetPrefab.transform.rotation);
+        Instantiate(targetPrefab, RandomPosition(), targetPrefab.transform.rotation);
 
         //  this should be relocated
         if (score % bombSpawnRate == 0)
@@ -82,19 +77,20 @@ public class GameManager : MonoBehaviour
 
     private void SpawnBomb()
     {
-        Vector2 spawnPos = RandomPosition();
-        while (Physics2D.CircleCast(spawnPos, 1.5f, Vector2.zero, 0.0f).collider != null)
-        {
-            spawnPos = RandomPosition();
-        }
-        Instantiate(bombPrefab, spawnPos, targetPrefab.transform.rotation);
+        Instantiate(bombPrefab, RandomPosition(), targetPrefab.transform.rotation);
     }
 
     private Vector2 RandomPosition()
     {
-        float targetXPos = Random.Range(-Camera.main.orthographicSize * Camera.main.aspect, Camera.main.orthographicSize * Camera.main.aspect);
-        float targetYPos = Random.Range(-Camera.main.orthographicSize, Camera.main.orthographicSize);
-        return new Vector2(targetXPos, targetYPos);
+        Vector2 spawnPos = new Vector2();
+        do
+        {
+            spawnPos.x = Random.Range(-Camera.main.orthographicSize * Camera.main.aspect, Camera.main.orthographicSize * Camera.main.aspect);
+            spawnPos.x = Random.Range(-Camera.main.orthographicSize, Camera.main.orthographicSize);
+        }
+        while (Physics2D.CircleCast(spawnPos, 1.5f, Vector2.zero, 0.0f).collider != null);
+
+        return spawnPos;
     }
 
     private void DestroyAllItems()

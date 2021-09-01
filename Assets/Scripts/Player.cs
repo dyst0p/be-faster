@@ -6,24 +6,24 @@ public class Player : MonoBehaviour
 {
     public GameManager gameManager;
 
-    public float maxSpeed = 1f;
-    public float maxAccelerate = 2f;
-    public float maxTouchRadius = 1f;
-    public float friction = 1f;
-    public float maxRotationSpeed = 0.001f;
+    [SerializeField] float maxSpeed = 1f;
+    [SerializeField] float maxAccelerate = 2f;
+    [SerializeField] float maxTouchRadius = 1f;
+    [SerializeField] float friction = 1f;
+    [SerializeField] float maxRotationSpeed = 0.001f;
 
     public Vector3 accelerate;
     public Vector3 speed;
 
-    public Sprite[] sprite;
+    [SerializeField] Sprite[] sprite;
     private int spriteIndex;
     private SpriteRenderer spriteRenderer;
 
-    public float maxFuel = 33;
-    public float fuel = 0;
+    [SerializeField] float maxFuel = 30;
+    float fuel = 0;
 
     private Light backlight;
-    public float maxLightIntensity = 5.0f;
+    [SerializeField] float maxLightIntensity = 5.0f;
 
     private void Start()
     {
@@ -36,31 +36,54 @@ public class Player : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            
-            Vector3 targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            targetPosition.z = 0;
-
-            accelerate = (targetPosition - transform.position);
-            accelerate = maxAccelerate * Mathf.Clamp01(accelerate.magnitude / maxTouchRadius) * accelerate.normalized;
+            CalcAccelerate();
         }
         else
         {
             accelerate = Vector3.zero;
         }
 
-        speed += accelerate * Time.deltaTime;
-        speed = speed.normalized * Mathf.Clamp(speed.magnitude - friction * Time.deltaTime, 0, maxSpeed);
-        //transform.Translate(speed * Time.deltaTime,Space.World);
-        if (speed.magnitude != 0)
-            transform.up = Vector3.RotateTowards(transform.up, speed, maxRotationSpeed * Time.deltaTime, 0);
+        CalcSpeed();
 
         fuel -= Time.deltaTime;
         if (fuel <= 0)
             gameManager.GameOver();
 
+        BacklightDisplay();
+    }
+
+    void CalcAccelerate()
+    {
+        Vector3 targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        targetPosition.z = 0;
+
+        accelerate = (targetPosition - transform.position);
+        accelerate = maxAccelerate * Mathf.Clamp01(accelerate.magnitude / maxTouchRadius) * accelerate.normalized;
+    }
+
+    void CalcSpeed()
+    {
+        speed += accelerate * Time.deltaTime;
+        speed = speed.normalized * Mathf.Clamp(speed.magnitude - friction * Time.deltaTime, 0, maxSpeed);
+
+        if (speed.magnitude != 0)
+            transform.up = Vector3.RotateTowards(transform.up, speed, maxRotationSpeed * Time.deltaTime, 0);
+    }
+
+    void BacklightDisplay()
+    {
         float relativeFuel = fuel / maxFuel;
+
         spriteIndex = (int)(relativeFuel * (sprite.Length - 1));
         spriteRenderer.sprite = sprite[spriteIndex];
         backlight.intensity = relativeFuel * maxLightIntensity;
     }
+
+    public void RefillFuel() => fuel++;
+    public void RefillFuel(float fuel)
+    {
+        this.fuel = Mathf.Clamp(this.fuel + fuel, 0, maxFuel);
+    }
+
+    public void FullTank() => RefillFuel(maxFuel);
 }

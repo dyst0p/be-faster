@@ -168,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   score: 0
   player: {fileID: 981130515}
-  playerScript: {fileID: 0}
+  playerScript: {fileID: 981130518}
   targetPrefab: {fileID: 4395614177620803755, guid: 5364bebef5485db4399e15599618de58,
     type: 3}
   bombPrefab: {fileID: 4395614177620803755, guid: 6858d050449047740b20a246976a1c54,
@@ -1090,7 +1090,6 @@ MonoBehaviour:
   - {fileID: -4325657475988135317, guid: cbb7a20ad53099640b5db7d5c10bea26, type: 3}
   - {fileID: 3043649795149392964, guid: cbb7a20ad53099640b5db7d5c10bea26, type: 3}
   maxFuel: 10
-  fuel: 10
   maxLightIntensity: 5
 --- !u!70 &981130519
 CapsuleCollider2D:
