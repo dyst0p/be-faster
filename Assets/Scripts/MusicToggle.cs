@@ -8,11 +8,13 @@ public class MusicToggle : MonoBehaviour
     [SerializeField] Sprite onSprite;
     [SerializeField] Sprite offSprite;
     
-    public void SwitchOnSprite(bool toggle)
+    public void SwitchSprite(bool toggle)
     {
+        Image image = gameObject.GetComponent<Image>();
+
         if (toggle == true)
-            gameObject.GetComponent<Image>().sprite = offSprite;
+            image.sprite = onSprite;
         else
-            gameObject.GetComponent<Image>().sprite = onSprite;
+            image.sprite = offSprite;
     }
 }

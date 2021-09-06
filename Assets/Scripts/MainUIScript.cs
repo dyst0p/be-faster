@@ -11,19 +11,9 @@ public class MainUIScript : MonoBehaviour
     [SerializeField] GameObject restartScreen;
     [SerializeField] Text scoreTextGameOver;
     [SerializeField] ScoreText scoreText;
+    [SerializeField] Text bestScoreText;
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public MusicToggle musicToggle;
 
     public void ActivatePlaymodeUI()
     {
@@ -41,8 +31,18 @@ public class MainUIScript : MonoBehaviour
     public void ActivateRestartScreen()
     {
         restartScreen.SetActive(true);
-        scoreTextGameOver.text = $"Score: {gameManager.score}";
+        scoreTextGameOver.text = $"Score: {gameManager.Score}";
     }
 
-    public void ShowScore() => scoreText.ShowScore(gameManager.score);
+    public void ShowScore() => scoreText.ShowScore(gameManager.Score);
+
+    public void ShowBestScore()
+    {
+        bestScoreText.text = $"Best Score: {gameManager.BestScore}";
+    }
+
+    public void ShowNewRecord()
+    {
+        bestScoreText.text = "New Record!";
+    }
 }
