@@ -4,23 +4,24 @@ using UnityEngine;
 
 public class ScrollBackground : MonoBehaviour
 {
-    public Player player;
-    public float unitPerTexture = 4;
+    [SerializeField]
+    private float _unitPerTexture = 4;
 
-    private Vector2 offset = new Vector2(0, 0);
-    private Renderer bgRenderer;
+    [SerializeField] private Player _player;
+    private Vector2 _offset = new Vector2();
+    private Renderer _bgRenderer;
 
-    // Start is called before the first frame update
     void Start()
     {
-        bgRenderer = GetComponent<Renderer>();
+        _bgRenderer = GetComponent<Renderer>();
+        _player = Player.Instance;
     }
 
-    // Update is called once per frame
     void LateUpdate()
     {
-        offset.x = (offset.x + player.speed.x * Time.deltaTime / unitPerTexture) % 1;
-        offset.y = (offset.y + player.speed.y * Time.deltaTime / unitPerTexture) % 1;
-        bgRenderer.material.mainTextureOffset = offset;
+        Vector3 playerSpeed = _player.Speed;
+        _offset.x = (_offset.x + playerSpeed.x * Time.deltaTime / _unitPerTexture) % 1;
+        _offset.y = (_offset.y + playerSpeed.y * Time.deltaTime / _unitPerTexture) % 1;
+        _bgRenderer.material.mainTextureOffset = _offset;
     }
 }

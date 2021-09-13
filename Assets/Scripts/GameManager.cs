@@ -5,28 +5,45 @@ using System.IO;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField]
+    private MainUIScript _uiScript;
+    private Player _playerScript;
+    
+    [Header("Spawn")]
+    [SerializeField]
+    private GameObject _targetPrefab;
+    [SerializeField]
+    private GameObject _bombPrefab;
+    [SerializeField]
+    private GameObject _exposionEffects;
+    [SerializeField]
+    private int _bombSpawnRate;
+
+    [Header("Data")]
+    [SerializeField]
+    private int _scoreMultiplicityToShow;
+    [SerializeField]
+    private static bool s_musicOn;
     public int Score { get; private set; }
-
-    [SerializeField] GameObject player;
-    [SerializeField] Player playerScript;
-    [SerializeField] GameObject targetPrefab;
-    [SerializeField] GameObject bombPrefab;
-    private int bombSpawnRate = 5;
-
-    [SerializeField] GameObject exposionEffects;
-
-    [SerializeField] MainUIScript uiScript;
-    [SerializeField] int scoreMultiplicityToShow;
-
-    [SerializeField] static bool musicOn;
     public int BestScore { get; private set; }
-    PlayerData data;
+    
+    private PlayerData _data;
+
+
+
+    public static GameManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
-        playerScript = player.GetComponent<Player>();
+        _playerScript = Player.Instance;
         LoadData();
-        Debug.Log(musicOn);
+        Debug.Log(s_musicOn);
+        _playerScript.gameObject.SetActive(false);
     }
 
     // data flow
@@ -37,25 +54,25 @@ public class GameManager : MonoBehaviour
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
-            data = JsonUtility.FromJson<PlayerData>(json);
+            _data = JsonUtility.FromJson<PlayerData>(json);
         }
         else
         {
-            data = new PlayerData();
+            _data = new PlayerData();
         }
 
-        musicOn = data.musicOn;
-        AudioSwitch(musicOn);
+        s_musicOn = _data.MusicOn;
+        AudioSwitch(s_musicOn);
 
-        BestScore = data.bestScore;
+        BestScore = _data.BestScore;
     }
 
     public void SaveData()
     {
-        data.musicOn = musicOn;
-        data.bestScore = BestScore;
+        _data.MusicOn = s_musicOn;
+        _data.BestScore = BestScore;
 
-        string json = JsonUtility.ToJson(data);
+        string json = JsonUtility.ToJson(_data);
         string path = Application.persistentDataPath + "/savefile.json";
         File.WriteAllText(path, json);
     }
@@ -65,62 +82,61 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         DestroyAllItems();
-        playerScript.FullTank();
-        player.SetActive(true);
+        _playerScript.FullTank();
+        _playerScript.gameObject.SetActive(true); // player field
         Score = 0;
         SpawnTarget();
 
-        uiScript.ActivatePlaymodeUI();
+        _uiScript.ActivatePlaymodeUI();
     }
 
     public void ExitToMenu()
     {
         DestroyAllItems();
-        uiScript.ActivateMenuUI();
+        _uiScript.ActivateMenuUI();
     }
 
     public void AudioSwitch()
     {
-        musicOn = AudioListener.pause;
-        AudioSwitch(musicOn);
+        s_musicOn = AudioListener.pause;
+        AudioSwitch(s_musicOn);
     }
 
     public void AudioSwitch(bool toggle)
     {
-        AudioListener.pause = !musicOn;
-        uiScript.musicToggle.SwitchSprite(musicOn);
+        AudioListener.pause = !s_musicOn;
+        _uiScript.SwitchMusicToggleSprite(s_musicOn);
     }
     // interactions
 
     public void GameOver()
     {
-        playerScript.speed = Vector3.zero;
-        playerScript.transform.rotation = Quaternion.identity;
-        player.SetActive(false);
-        Instantiate(exposionEffects, player.transform.position, exposionEffects.transform.rotation);
+        _playerScript.StopMovement();
+        _playerScript.gameObject.SetActive(false);
+        Instantiate(_exposionEffects, _playerScript.gameObject.transform.position, _exposionEffects.transform.rotation);
 
-        uiScript.ActivateRestartScreen();
+        _uiScript.ActivateRestartScreen();
 
         if (Score > BestScore)
         {
             BestScore = Score;
-            uiScript.ShowNewRecord();
+            _uiScript.ShowNewRecord();
             SaveData();
         }
         else
         {
-            uiScript.ShowBestScore();
+            _uiScript.ShowBestScore();
         }
     }
 
     public void TargetCollected(GameObject target)
     {
         Score++;
-        playerScript.RefillFuel();
+        _playerScript.RefillFuel();
         Destroy(target);
         SpawnTarget();
-        if (Score % scoreMultiplicityToShow == 0)
-            uiScript.ShowScore();
+        if (Score % _scoreMultiplicityToShow == 0)
+            _uiScript.ShowScore();
     }
 
     public void BombCollide()
@@ -131,16 +147,16 @@ public class GameManager : MonoBehaviour
     // spawn and despawn objects
     private void SpawnTarget()
     {
-        Instantiate(targetPrefab, RandomPosition(), targetPrefab.transform.rotation);
+        Instantiate(_targetPrefab, RandomPosition(), _targetPrefab.transform.rotation);
 
         //  this should be relocated
-        if (Score % bombSpawnRate == 0)
+        if (Score % _bombSpawnRate == 0)
             SpawnBomb();
     }
 
     private void SpawnBomb()
     {
-        Instantiate(bombPrefab, RandomPosition(), targetPrefab.transform.rotation);
+        Instantiate(_bombPrefab, RandomPosition(), _targetPrefab.transform.rotation);
     }
 
     private Vector2 RandomPosition()
@@ -161,12 +177,4 @@ public class GameManager : MonoBehaviour
         foreach (GameObject item in GameObject.FindGameObjectsWithTag("Items"))
             Destroy(item);
     }
-}
-
-[System.Serializable]
-class PlayerData
-{
-    public bool musicOn = true;
-    public int bestScore = 0;
-    
 }

@@ -4,32 +4,51 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public GameManager gameManager;
+    private GameManager _gameManager;
+    public static Player Instance { get; private set; }
 
-    [SerializeField] float maxSpeed = 1f;
-    [SerializeField] float maxAccelerate = 2f;
-    [SerializeField] float maxTouchRadius = 1f;
-    [SerializeField] float friction = 1f;
-    [SerializeField] float maxRotationSpeed = 0.001f;
+    [Header("Movement")]
+    [SerializeField]
+    private float _maxSpeed;
+    [SerializeField]
+    private float _maxAccelerate;
+    [SerializeField]
+    private float _maxTouchRadius;
+    [SerializeField]
+    private float _friction;
+    [SerializeField]
+    private float _maxRotationSpeed;
 
-    public Vector3 accelerate;
-    public Vector3 speed;
+    private Vector3 _accelerate;
+    public Vector3 Speed { get; private set; }
 
-    [SerializeField] Sprite[] sprite;
-    private int spriteIndex;
-    private SpriteRenderer spriteRenderer;
+    [Header("Fuel")]
+    [SerializeField]
+    private float _maxFuel;
 
-    [SerializeField] float maxFuel = 30;
-    float fuel = 0;
+    private float _fuel = 0;
 
-    private Light backlight;
-    [SerializeField] float maxLightIntensity = 5.0f;
+    [Header("Render")]
+    [SerializeField]
+    private Sprite[] _sprites;
+    [SerializeField]
+    private float _maxLightIntensity;
+
+    private int _spriteIndex;
+    private SpriteRenderer _spriteRenderer;
+    private Light _backlight;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
-        spriteIndex = sprite.Length - 1;
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        backlight = GetComponent<Light>();
+        _gameManager = GameManager.Instance;
+        _spriteIndex = _sprites.Length - 1;
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _backlight = GetComponent<Light>();
     }
 
     void Update()
@@ -40,16 +59,16 @@ public class Player : MonoBehaviour
         }
         else
         {
-            accelerate = Vector3.zero;
+            _accelerate = Vector3.zero;
         }
 
         CalcSpeed();
 
-        fuel -= Time.deltaTime;
-        if (fuel <= 0)
-            gameManager.GameOver();
+        _fuel -= Time.deltaTime;
+        if (_fuel <= 0)
+            _gameManager.GameOver();
 
-        BacklightDisplay();
+        Render();
     }
 
     void CalcAccelerate()
@@ -57,33 +76,49 @@ public class Player : MonoBehaviour
         Vector3 targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         targetPosition.z = 0;
 
-        accelerate = (targetPosition - transform.position);
-        accelerate = maxAccelerate * Mathf.Clamp01(accelerate.magnitude / maxTouchRadius) * accelerate.normalized;
+        _accelerate = (targetPosition - transform.position);
+        _accelerate = _maxAccelerate * Mathf.Clamp01(_accelerate.magnitude / _maxTouchRadius) * _accelerate.normalized;
     }
 
     void CalcSpeed()
     {
-        speed += accelerate * Time.deltaTime;
-        speed = speed.normalized * Mathf.Clamp(speed.magnitude - friction * Time.deltaTime, 0, maxSpeed);
+        Speed += _accelerate * Time.deltaTime;
+        Speed = Speed.normalized * Mathf.Clamp(Speed.magnitude - (_friction * Time.deltaTime), 0, _maxSpeed);
 
-        if (speed.magnitude != 0)
-            transform.up = Vector3.RotateTowards(transform.up, speed, maxRotationSpeed * Time.deltaTime, 0);
+        if (Speed.magnitude != 0)
+            transform.up = Vector3.RotateTowards(transform.up, Speed, _maxRotationSpeed * Time.deltaTime, 0);
     }
 
-    void BacklightDisplay()
+    public void StopMovement()
     {
-        float relativeFuel = fuel / maxFuel;
-
-        spriteIndex = (int)(relativeFuel * (sprite.Length - 1));
-        spriteRenderer.sprite = sprite[spriteIndex];
-        backlight.intensity = relativeFuel * maxLightIntensity;
+        Speed = Vector3.zero;
+        transform.rotation = Quaternion.identity;
     }
 
-    public void RefillFuel() => fuel++;
-    public void RefillFuel(float fuel)
+    private void Render()
     {
-        this.fuel = Mathf.Clamp(this.fuel + fuel, 0, maxFuel);
+        float relativeFuel = _fuel / _maxFuel;
+
+        SetSprite(relativeFuel);
+        SetBacklight(relativeFuel);
     }
 
-    public void FullTank() => RefillFuel(maxFuel);
+    private void SetSprite(float relativeFuel)
+    {
+        _spriteIndex = (int)((relativeFuel * _sprites.Length) - 1);
+        _spriteRenderer.sprite = _sprites[_spriteIndex];
+    }
+
+    private void SetBacklight(float relativeFuel)
+    {
+        _backlight.intensity = relativeFuel * _maxLightIntensity;
+    }
+
+    public void RefillFuel() => _fuel++;
+    public void RefillFuel(float addedFuel)
+    {
+        this._fuel = Mathf.Clamp(_fuel + addedFuel, 0, _maxFuel);
+    }
+
+    public void FullTank() => RefillFuel(_maxFuel);
 }

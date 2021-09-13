@@ -5,16 +5,18 @@ using UnityEngine.UI;
 
 public class MusicToggle : MonoBehaviour
 {
-    [SerializeField] Sprite onSprite;
-    [SerializeField] Sprite offSprite;
+    [SerializeField]
+    private Sprite _onSprite;
+    [SerializeField]
+    private Sprite _offSprite;
     
     public void SwitchSprite(bool toggle)
     {
         Image image = gameObject.GetComponent<Image>();
 
         if (toggle == true)
-            image.sprite = onSprite;
+            image.sprite = _onSprite;
         else
-            image.sprite = offSprite;
+            image.sprite = _offSprite;
     }
 }

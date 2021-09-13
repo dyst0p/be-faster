@@ -7,7 +7,7 @@ public class ImmovableItem : Item
     public override void Move()
     {
         Vector3 pos = transform.position;
-        pos -= PlayerData.speed * Time.deltaTime;
+        pos -= PlayerData.Speed * Time.deltaTime;
         if (pos.x < -XBound)
             pos.x += 2 * XBound;
         else if (pos.x > XBound)

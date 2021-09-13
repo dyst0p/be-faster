@@ -5,44 +5,57 @@ using UnityEngine.UI;
 
 public class MainUIScript : MonoBehaviour
 {
-    [SerializeField] GameManager gameManager; // just in case
+    [Header("UI Objects")]
+    [SerializeField]
+    private GameObject _startScreen;
+    [SerializeField]
+    private GameObject _restartScreen;
+    [SerializeField]
+    private MusicToggle _musicToggle;
+    [SerializeField]
+    private ScoreText _scoreText;
+    [SerializeField]
+    private Text _scoreTextGameOver;
+    [SerializeField]
+    private Text _bestScoreText;
 
-    [SerializeField] GameObject startScreen;
-    [SerializeField] GameObject restartScreen;
-    [SerializeField] Text scoreTextGameOver;
-    [SerializeField] ScoreText scoreText;
-    [SerializeField] Text bestScoreText;
+    private GameManager _gameManager;
 
-    public MusicToggle musicToggle;
+    public void Start()
+    {
+        _gameManager = GameManager.Instance;
+    }
 
     public void ActivatePlaymodeUI()
     {
-        startScreen.SetActive(false);
-        restartScreen.SetActive(false);
-        scoreText.SetToZero();
+        _startScreen.SetActive(false);
+        _restartScreen.SetActive(false);
+        _scoreText.SetToZero();
     }
 
     public void ActivateMenuUI()
     {
-        startScreen.SetActive(true);
-        restartScreen.SetActive(false);
+        _startScreen.SetActive(true);
+        _restartScreen.SetActive(false);
     }
 
     public void ActivateRestartScreen()
     {
-        restartScreen.SetActive(true);
-        scoreTextGameOver.text = $"Score: {gameManager.Score}";
+        _restartScreen.SetActive(true);
+        _scoreTextGameOver.text = $"Score: {_gameManager.Score}";
     }
 
-    public void ShowScore() => scoreText.ShowScore(gameManager.Score);
+    public void ShowScore() => _scoreText.ShowScore(_gameManager.Score);
 
     public void ShowBestScore()
     {
-        bestScoreText.text = $"Best Score: {gameManager.BestScore}";
+        _bestScoreText.text = $"Best Score: {_gameManager.BestScore}";
     }
 
     public void ShowNewRecord()
     {
-        bestScoreText.text = "New Record!";
+        _bestScoreText.text = "New Record!";
     }
+
+    public void SwitchMusicToggleSprite(bool toggle) => _musicToggle.SwitchSprite(toggle);
 }

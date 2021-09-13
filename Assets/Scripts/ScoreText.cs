@@ -5,29 +5,30 @@ using UnityEngine.UI;
 
 public class ScoreText : MonoBehaviour
 {
-    [SerializeField] float flashDuration;
+    [SerializeField]
+    private float _flashDuration;
     
-    private Text scoreText;
+    private Text _scoreText;
 
     private void Start()
     {
-        scoreText = GetComponent<Text>();
+        _scoreText = GetComponent<Text>();
     }
 
     public void ShowScore(int score)
     {
-        scoreText.enabled = true;
-        scoreText.text = score.ToString();
-        Invoke("TurnOff", flashDuration);
+        _scoreText.enabled = true;
+        _scoreText.text = score.ToString();
+        Invoke("TurnOff", _flashDuration);
     }
 
     private void TurnOff()
     {
-        scoreText.enabled = false;
+        _scoreText.enabled = false;
     }
 
     public void SetToZero()
     {
-        scoreText.text = "";
+        _scoreText.text = "";
     }
 }

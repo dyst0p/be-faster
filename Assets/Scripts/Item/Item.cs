@@ -8,7 +8,7 @@ public abstract class Item : MonoBehaviour
     public float YBound { get; set; }
     public Player PlayerData { get; set; }
 
-    private void Awake()
+    private void Start()
     {
         XBound = 18;
         YBound = 11;
