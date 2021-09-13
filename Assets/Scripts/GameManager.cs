@@ -5,8 +5,6 @@ using System.IO;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField]
-    private MainUIScript _uiScript;
     private Player _playerScript;
     
     [Header("Spawn")]
@@ -15,14 +13,14 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject _bombPrefab;
     [SerializeField]
-    private GameObject _exposionEffects;
-    [SerializeField]
     private int _bombSpawnRate;
 
-    [Header("Data")]
+    [Header("UI")]
+    [SerializeField]
+    private MainUIScript _uiScript;
     [SerializeField]
     private int _scoreMultiplicityToShow;
-    [SerializeField]
+    
     private static bool s_musicOn;
     public int Score { get; private set; }
     public int BestScore { get; private set; }
@@ -83,9 +81,9 @@ public class GameManager : MonoBehaviour
     {
         DestroyAllItems();
         _playerScript.FullTank();
-        _playerScript.gameObject.SetActive(true); // player field
+        _playerScript.gameObject.SetActive(true);
         Score = 0;
-        SpawnTarget();
+        Spawn();
 
         _uiScript.ActivatePlaymodeUI();
     }
@@ -111,9 +109,7 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        _playerScript.StopMovement();
-        _playerScript.gameObject.SetActive(false);
-        Instantiate(_exposionEffects, _playerScript.gameObject.transform.position, _exposionEffects.transform.rotation);
+        _playerScript.Explosion();
 
         _uiScript.ActivateRestartScreen();
 
@@ -129,29 +125,24 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void TargetCollected(GameObject target)
+    public void AddScore()
     {
         Score++;
-        _playerScript.RefillFuel();
-        Destroy(target);
-        SpawnTarget();
         if (Score % _scoreMultiplicityToShow == 0)
             _uiScript.ShowScore();
     }
 
-    public void BombCollide()
+    // spawn objects
+    public void Spawn()
     {
-        GameOver();
+        SpawnTarget();
+        if (Score % _bombSpawnRate == 0)
+            SpawnBomb();
     }
-
-    // spawn and despawn objects
+    
     private void SpawnTarget()
     {
         Instantiate(_targetPrefab, RandomPosition(), _targetPrefab.transform.rotation);
-
-        //  this should be relocated
-        if (Score % _bombSpawnRate == 0)
-            SpawnBomb();
     }
 
     private void SpawnBomb()

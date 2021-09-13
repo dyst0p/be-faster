@@ -33,6 +33,8 @@ public class Player : MonoBehaviour
     private Sprite[] _sprites;
     [SerializeField]
     private float _maxLightIntensity;
+    [SerializeField]
+    private GameObject _explosionPrefab;
 
     private int _spriteIndex;
     private SpriteRenderer _spriteRenderer;
@@ -95,6 +97,13 @@ public class Player : MonoBehaviour
         transform.rotation = Quaternion.identity;
     }
 
+    public void Explosion()
+    {
+        StopMovement();
+        gameObject.SetActive(false);
+        Instantiate(_explosionPrefab, transform.position, _explosionPrefab.transform.rotation);
+    }
+
     private void Render()
     {
         float relativeFuel = _fuel / _maxFuel;
@@ -105,7 +114,7 @@ public class Player : MonoBehaviour
 
     private void SetSprite(float relativeFuel)
     {
-        _spriteIndex = (int)((relativeFuel * _sprites.Length) - 1);
+        _spriteIndex = (int)(relativeFuel * (_sprites.Length - 1));
         _spriteRenderer.sprite = _sprites[_spriteIndex];
     }
 
@@ -114,11 +123,11 @@ public class Player : MonoBehaviour
         _backlight.intensity = relativeFuel * _maxLightIntensity;
     }
 
-    public void RefillFuel() => _fuel++;
     public void RefillFuel(float addedFuel)
     {
-        this._fuel = Mathf.Clamp(_fuel + addedFuel, 0, _maxFuel);
+        _fuel = Mathf.Clamp(_fuel + addedFuel, 0, _maxFuel);
     }
+    public void RefillFuel() => RefillFuel(1);
 
     public void FullTank() => RefillFuel(_maxFuel);
 }
